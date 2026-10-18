@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lacrosse Shotclock</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: #101114;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+
+  main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 22px;
+    letter-spacing: 5px;
+    margin-bottom: 30px;
+  }
+
+  #clock {
+    font-size: clamp(130px, 35vw, 420px);
+    font-weight: 900;
+    color: #fa74b5;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    margin-bottom: 35px;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  button {
+    padding: 18px 28px;
+    font-size: 20px;
+    font-weight: bold;
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    color: white;
+    background: #343840;
+  }
+
+  button:hover {
+    filter: brightness(1.15);
+  }
+
+  .start {
+    background: #208454;
+  }
+
+  .reset {
+    background: #fa74b5;
+  }
+
+  .hint {
+    color: #999;
+    margin-top: 25px;
+  }
+
+  @media (max-width: 600px) {
+    button {
+      font-size: 16px;
+      padding: 14px 18px;
+    }
+
+    h1 {
+      font-size: 16px;
+    }
+  }
+</style>
+</head>
+
+<body>
+<main>
+
+  <h1>BSI OWLS - SHOTCLOCK</h1>
+
+  <div id="clock">30</div>
+
+  <div class="controls">
+    <button class="start" id="start">Start</button>
+    <button id="pause">Pause</button>
+    <button class="reset" id="reset">Reset 30</button>
+    <button id="fullscreen">Fullskjerm</button>
+  </div>
+
+  <p class="hint">
+    Space = Start/Pause | R = Reset
+  </p>
+
+</main>
+
+<script>
+  // ==========================================
+  // INNSTILLINGER
+  // ==========================================
+
+  const DURATION = 30000;      // 30 sekunder
+  const BEEP_START = 10;        // Start lyd ved 10 sekunder
+  const BEEP_FREQUENCY = 880;   // Tone for korte pip
+  const FINAL_FREQUENCY = 650;  // Tone ved 0
+
+  // ==========================================
+  // VARIABLER
+  // ==========================================
+
+  const clock = document.getElementById("clock");
+
+  let remaining = DURATION;
+  let deadline = 0;
+  let running = false;
+  let frame = null;
+  let audioContext = null;
+  let lastBeepSecond = null;
+
+  // ==========================================
+  // LYD
+  // ==========================================
+
+  function getAudio() {
+    const AudioCtx =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioCtx) return null;
+
+    audioContext ||= new AudioCtx();
+
+    if (audioContext.state === "suspended") {
+      audioContext.resume();
+    }
+
+    return audioContext;
+  }
+
+  function beep(duration = 0.12, frequency = 880) {
+    const ctx = getAudio();
+
+    if (!ctx) return;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.value = frequency;
+
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      ctx.currentTime + duration
+    );
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  }
+
+  // ==========================================
+  // VIS KLOKKEN
+  // ==========================================
+
+  function render() {
+    clock.textContent = Math.ceil(remaining / 1000);
+  }
+
+  // ==========================================
+  // NEDTELLING
+  // ==========================================
+
+  function tick() {
+    if (!running) return;
+
+    remaining = Math.max(
+      0,
+      deadline - performance.now()
+    );
+
+    const seconds = Math.ceil(remaining / 1000);
+
+    render();
+
+    // Kort pip fra 10 til 1
+    if (
+      seconds <= BEEP_START &&
+      seconds >= 1 &&
+      seconds !== lastBeepSecond
+    ) {
+      beep(0.12, BEEP_FREQUENCY);
+      lastBeepSecond = seconds;
+    }
+
+    // Lang lyd ved 0
+    if (remaining === 0) {
+      running = false;
+      beep(1.2, FINAL_FREQUENCY);
+      return;
+    }
+
+    frame = requestAnimationFrame(tick);
+  }
+
+  // ==========================================
+  // START
+  // ==========================================
+
+  function start() {
+    if (running || remaining === 0) return;
+
+    getAudio();
+
+    running = true;
+    deadline = performance.now() + remaining;
+
+    tick();
+  }
+
+  // ==========================================
+  // PAUSE
+  // ==========================================
+
+  function pause() {
+    if (!running) return;
+
+    remaining = Math.max(
+      0,
+      deadline - performance.now()
+    );
+
+    running = false;
+    cancelAnimationFrame(frame);
+
+    render();
+  }
+
+  // ==========================================
+  // RESET
+  // ==========================================
+
+function reset() {
+  running = false;
+  cancelAnimationFrame(frame);
+
+  remaining = DURATION;
+  lastBeepSecond = null;
+
+  render();
+  start(); // Starter nedtellingen automatisk!
+}
+
+  // ==========================================
+  // KNAPPER
+  // ==========================================
+
+  document.getElementById("start").onclick = start;
+  document.getElementById("pause").onclick = pause;
+  document.getElementById("reset").onclick = reset;
+
+  document.getElementById("fullscreen").onclick = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  // ==========================================
+  // TASTATURSNARVEIER
+  // ==========================================
+
+  document.addEventListener("keydown", e => {
+
+    // Mellomrom = Start/Pause
+    if (e.code === "Space") {
+      e.preventDefault();
+
+      if (running) {
+        pause();
+      } else {
+        start();
+      }
+    }
+
+    // R = Reset
+    if (e.key.toLowerCase() === "r") {
+      reset();
+    }
+
+  });
+
+  // Vis 30 ved oppstart
+  render();
+
+</script>
+</body>
+</html>
