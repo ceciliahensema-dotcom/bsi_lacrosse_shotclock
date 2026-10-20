@@ -143,20 +143,43 @@
   // LYD
   // ==========================================
 
-  function getAudio() {
-    const AudioCtx =
-      window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioCtx) return null;
-
-    audioContext ||= new AudioCtx();
-
-    if (audioContext.state === "suspended") {
-      audioContext.resume();
-    }
-
-    return audioContext;
-  }
+ function getAudio() {
+   const AudioCtx =
+     window.AudioContext || window.webkitAudioContext;
+ 
+   if (!AudioCtx) return null;
+ 
+   if (!audioContext) {
+     audioContext = new AudioCtx();
+   }
+ 
+   if (audioContext.state === "suspended") {
+     audioContext.resume().catch(console.error);
+   }
+ 
+   return audioContext;
+ }
+ 
+ function unlockAudio() {
+   const ctx = getAudio();
+   if (!ctx) return;
+ 
+   // Spill av et lydløst signal for å aktivere lyd på iPhone
+   const buffer = ctx.createBuffer(1, 1, 22050);
+   const source = ctx.createBufferSource();
+ 
+   source.buffer = buffer;
+   source.connect(ctx.destination);
+   source.start(0);
+ }
+ 
+ document.addEventListener("touchstart", unlockAudio, {
+   once: true
+ });
+ 
+ document.addEventListener("click", unlockAudio, {
+   once: true
+ });
 
   function beep(duration = 0.12, frequency = 880) {
     const ctx = getAudio();
