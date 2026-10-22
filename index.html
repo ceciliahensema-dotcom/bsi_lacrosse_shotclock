@@ -2,102 +2,176 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BSI Lacrosse Shotclock</title>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png?v=5">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="BSI Owls">
- 
-<style>
-  * {
-    box-sizing: border-box;
-  }
+  <title>BSI Owls Shotclock</title>
 
-  body {
-    margin: 0;
-    background: #101114;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
-  }
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon"
+        sizes="512x512"
+        href="./icon-512.png?v=5">
 
-  main {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="BSI Owls">
 
-  h1 {
-    font-size: 22px;
-    letter-spacing: 5px;
-    margin-bottom: 30px;
-  }
-
-  #clock {
-    font-size: clamp(130px, 35vw, 420px);
-    font-weight: 900;
-    color: #fa74b5;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.2;
-    margin-bottom: 35px;
-  }
-
-  .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-  }
-
-  button {
-    padding: 18px 28px;
-    font-size: 20px;
-    font-weight: bold;
-    border: 0;
-    border-radius: 12px;
-    cursor: pointer;
-    color: white;
-    background: #343840;
-  }
-
-  button:hover {
-    filter: brightness(1.15);
-  }
-
-  .start {
-    background: #208454;
-  }
-
-  .reset {
-    background: #fa74b5;
-  }
-
-  .hint {
-    color: #999;
-    margin-top: 25px;
-  }
-
-  @media (max-width: 600px) {
-    button {
-      font-size: 16px;
-      padding: 14px 18px;
+  <style>
+    * {
+      box-sizing: border-box;
     }
+
+    body {
+      margin: 0;
+      background: #101114;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    main {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    /* FULLSKJERM-IKON */
+
+    #fullscreen {
+      position: absolute;
+      top: calc(15px + env(safe-area-inset-top));
+      right: calc(15px + env(safe-area-inset-right));
+
+      width: 44px;
+      height: 44px;
+      padding: 10px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: transparent;
+      color: white;
+      border: none;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    #fullscreen svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    #fullscreen:hover {
+      opacity: 1;
+    }
+
+    /* OVERSKRIFT */
 
     h1 {
-      font-size: 16px;
+      font-size: clamp(24px, 5vw, 48px);
+      letter-spacing: 3px;
+      margin: 0 0 20px;
+      font-weight: 800;
     }
-  }
-</style>
+
+    /* NEDTELLING */
+
+    #clock {
+      font-size: clamp(170px, 48vw, 520px);
+      font-weight: 900;
+      color: #fa74b5;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      margin-bottom: 35px;
+    }
+
+    /* KNAPPER */
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .controls button {
+      padding: 18px 28px;
+      font-size: 20px;
+      font-weight: bold;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      color: white;
+      background: #343840;
+    }
+
+    .controls button:hover {
+      filter: brightness(1.15);
+    }
+
+    .controls .start {
+      background: #208454;
+    }
+
+    .controls .reset {
+      background: #fa74b5;
+    }
+
+    /* MOBIL */
+
+    @media (max-width: 600px) {
+      main {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: clamp(22px, 6vw, 32px);
+        letter-spacing: 2px;
+        margin-bottom: 25px;
+      }
+
+      #clock {
+        font-size: min(65vw, 38dvh);
+        margin-bottom: 35px;
+      }
+
+      .controls button {
+        font-size: 18px;
+        padding: 16px 20px;
+      }
+    }
+  </style>
 </head>
 
 <body>
+
 <main>
+
+  <!-- FULLSKJERM-SYMBOL -->
+  <button id="fullscreen"
+          aria-label="Fullskjerm"
+          title="Fullskjerm">
+
+    <svg viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+
+      <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+      <path d="M16 3h3a2 2 0 0 1 2 2v3"/>
+      <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+      <path d="M21 16v3a2 2 0 0 1-2 2h-3"/>
+
+    </svg>
+  </button>
 
   <h1>BSI OWLS - SHOTCLOCK</h1>
 
@@ -107,12 +181,7 @@
     <button class="start" id="start">Start</button>
     <button id="pause">Pause</button>
     <button class="reset" id="reset">Reset 30</button>
-    <button id="fullscreen">Fullskjerm</button>
   </div>
-
-  <p class="hint">
-    Space = Start/Pause | R = Reset
-  </p>
 
 </main>
 
@@ -121,10 +190,10 @@
   // INNSTILLINGER
   // ==========================================
 
-  const DURATION = 30000;      // 30 sekunder
-  const BEEP_START = 10;        // Start lyd ved 10 sekunder
-  const BEEP_FREQUENCY = 880;   // Tone for korte pip
-  const FINAL_FREQUENCY = 650;  // Tone ved 0
+  const DURATION = 30000;
+  const BEEP_START = 10;
+  const BEEP_FREQUENCY = 880;
+  const FINAL_FREQUENCY = 650;
 
   // ==========================================
   // VARIABLER
@@ -138,48 +207,48 @@
   let frame = null;
   let audioContext = null;
   let lastBeepSecond = null;
+  let finalBeepPlayed = false;
 
   // ==========================================
-  // LYD
+  // LYD - FUNGERER PÅ IPHONE
   // ==========================================
 
- function getAudio() {
-   const AudioCtx =
-     window.AudioContext || window.webkitAudioContext;
- 
-   if (!AudioCtx) return null;
- 
-   if (!audioContext) {
-     audioContext = new AudioCtx();
-   }
- 
-   if (audioContext.state === "suspended") {
-     audioContext.resume().catch(console.error);
-   }
- 
-   return audioContext;
- }
- 
- function unlockAudio() {
-   const ctx = getAudio();
-   if (!ctx) return;
- 
-   // Spill av et lydløst signal for å aktivere lyd på iPhone
-   const buffer = ctx.createBuffer(1, 1, 22050);
-   const source = ctx.createBufferSource();
- 
-   source.buffer = buffer;
-   source.connect(ctx.destination);
-   source.start(0);
- }
- 
- document.addEventListener("touchstart", unlockAudio, {
-   once: true
- });
- 
- document.addEventListener("click", unlockAudio, {
-   once: true
- });
+  function getAudio() {
+    const AudioCtx =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioCtx) return null;
+
+    if (!audioContext) {
+      audioContext = new AudioCtx();
+    }
+
+    if (audioContext.state === "suspended") {
+      audioContext.resume().catch(console.error);
+    }
+
+    return audioContext;
+  }
+
+  function unlockAudio() {
+    const ctx = getAudio();
+    if (!ctx) return;
+
+    const buffer = ctx.createBuffer(1, 1, 22050);
+    const source = ctx.createBufferSource();
+
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+  }
+
+  document.addEventListener("touchstart", unlockAudio, {
+    once: true
+  });
+
+  document.addEventListener("click", unlockAudio, {
+    once: true
+  });
 
   function beep(duration = 0.12, frequency = 880) {
     const ctx = getAudio();
@@ -229,20 +298,27 @@
 
     render();
 
-    // Kort pip fra 10 til 1
+    // Korte pip fra 10 til 2
     if (
       seconds <= BEEP_START &&
-      seconds >= 1 &&
+      seconds >= 2 &&
       seconds !== lastBeepSecond
     ) {
       beep(0.12, BEEP_FREQUENCY);
       lastBeepSecond = seconds;
     }
 
-    // Lang lyd ved 0
+    // Langt pip når klokken viser 1
+    if (seconds === 1 && !finalBeepPlayed) {
+      beep(1.2, FINAL_FREQUENCY);
+      finalBeepPlayed = true;
+      lastBeepSecond = 1;
+    }
+
+    // Stopp ved 0 - ingen ekstra lyd
     if (remaining === 0) {
       running = false;
-      beep(1.2, FINAL_FREQUENCY);
+      frame = null;
       return;
     }
 
@@ -278,6 +354,7 @@
 
     running = false;
     cancelAnimationFrame(frame);
+    frame = null;
 
     render();
   }
@@ -286,16 +363,18 @@
   // RESET
   // ==========================================
 
-function reset() {
-  running = false;
-  cancelAnimationFrame(frame);
+  function reset() {
+    running = false;
+    cancelAnimationFrame(frame);
+    frame = null;
 
-  remaining = DURATION;
-  lastBeepSecond = null;
+    remaining = DURATION;
+    lastBeepSecond = null;
+    finalBeepPlayed = false;
 
-  render();
-  start(); // Starter nedtellingen automatisk!
-}
+    render();
+    start();
+  }
 
   // ==========================================
   // KNAPPER
@@ -305,11 +384,21 @@ function reset() {
   document.getElementById("pause").onclick = pause;
   document.getElementById("reset").onclick = reset;
 
-  document.getElementById("fullscreen").onclick = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
+  // ==========================================
+  // FULLSKJERM
+  // ==========================================
+
+  document.getElementById("fullscreen").onclick = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.log("Fullskjerm støttes ikke her:", error);
     }
   };
 
@@ -319,7 +408,6 @@ function reset() {
 
   document.addEventListener("keydown", e => {
 
-    // Mellomrom = Start/Pause
     if (e.code === "Space") {
       e.preventDefault();
 
@@ -330,7 +418,6 @@ function reset() {
       }
     }
 
-    // R = Reset
     if (e.key.toLowerCase() === "r") {
       reset();
     }
@@ -341,5 +428,6 @@ function reset() {
   render();
 
 </script>
+
 </body>
 </html>
