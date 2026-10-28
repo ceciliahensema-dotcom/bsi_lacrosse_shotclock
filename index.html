@@ -146,6 +146,36 @@
         padding: 16px 20px;
       }
     }
+
+    
+    /* PLUSS OG MINUS */
+    
+    .adjust-controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 18px;
+    }
+    
+    .adjust-controls button {
+      width: 75px;
+      height: 60px;
+      border: none;
+      border-radius: 12px;
+      background: #343840;
+      color: white;
+      font-size: 34px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .adjust-controls button:hover {
+      filter: brightness(1.15);
+    }
+    
+    .adjust-controls button:active {
+      background: #fa74b5;
+    }
   </style>
 </head>
 
@@ -181,6 +211,8 @@
     <button class="start" id="start">Start</button>
     <button id="pause">Pause</button>
     <button class="reset" id="reset">Reset 30</button>
+    <button id="minus" aria-label="Trekk fra 1 sekund">−</button>
+    <button id="plus" aria-label="Legg til 1 sekund">+</button>
   </div>
 
 </main>
@@ -375,6 +407,54 @@
     render();
     start();
   }
+
+  
+  // ==========================================
+  // JUSTER TID MED + OG -
+  // ==========================================
+
+  function adjustTime(seconds) {
+    // Finn gjeldende tid
+    if (running) {
+      remaining = Math.max(
+        0,
+        deadline - performance.now()
+      );
+    }
+
+    // Legg til eller trekk fra sekunder
+    remaining = Math.max(
+      0,
+      remaining + seconds * 1000
+    );
+
+    // Oppdater slutttiden hvis klokken går
+    if (running) {
+      deadline = performance.now() + remaining;
+    }
+
+    // Tillat nye pip når tiden justeres
+    lastBeepSecond = Math.ceil(remaining / 1000);
+    finalBeepPlayed = remaining <= 1000;
+
+    // Vis ny tid
+    render();
+
+    // Stopp hvis tiden er 0
+    if (remaining === 0) {
+      running = false;
+      cancelAnimationFrame(frame);
+      frame = null;
+    }
+  }
+
+  document.getElementById("plus").onclick = () => {
+    adjustTime(1);
+  };
+
+  document.getElementById("minus").onclick = () => {
+    adjustTime(-1);
+  };
 
   // ==========================================
   // KNAPPER
