@@ -17,6 +17,10 @@
   <meta name="apple-mobile-web-app-title" content="BSI Owls">
 
   <style>
+    /* ==========================================
+       GENERELT
+       ========================================== */
+
     * {
       box-sizing: border-box;
     }
@@ -40,7 +44,9 @@
       position: relative;
     }
 
-    /* FULLSKJERM-IKON */
+    /* ==========================================
+       FULLSKJERM-IKON
+       ========================================== */
 
     #fullscreen {
       position: absolute;
@@ -71,7 +77,9 @@
       opacity: 1;
     }
 
-    /* OVERSKRIFT */
+    /* ==========================================
+       OVERSKRIFT
+       ========================================== */
 
     h1 {
       font-size: clamp(24px, 5vw, 48px);
@@ -80,7 +88,9 @@
       font-weight: 800;
     }
 
-    /* NEDTELLING */
+    /* ==========================================
+       NEDTELLING
+       ========================================== */
 
     #clock {
       font-size: clamp(170px, 48vw, 520px);
@@ -91,32 +101,43 @@
       margin-bottom: 35px;
     }
 
-    /* KNAPPER */
+    /* ==========================================
+       FELLES KNAPPESTIL
+       ========================================== */
 
-     .controls {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      width: 100%;
-      max-width: 500px;
-    }
-    
-    .controls button {
+    .controls button,
+    .adjust-controls button {
       width: 100%;
       min-width: 0;
       height: 60px;
-      padding: 10px 5px;
+      padding: 8px 5px;
+
+      border: none;
+      border-radius: 12px;
+
+      background: #343840;
+      color: white;
+
       font-size: 18px;
       font-weight: bold;
-      border: 0;
-      border-radius: 12px;
       cursor: pointer;
-      color: white;
-      background: #343840;
     }
 
-    .controls button:hover {
+    .controls button:hover,
+    .adjust-controls button:hover {
       filter: brightness(1.15);
+    }
+
+    /* ==========================================
+       START, PAUSE OG RESET
+       ========================================== */
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      width: 100%;
+      max-width: 500px;
     }
 
     .controls .start {
@@ -127,7 +148,33 @@
       background: #fa74b5;
     }
 
-    /* MOBIL */
+    /* ==========================================
+       PLUSS OG MINUS
+       ========================================== */
+
+    .adjust-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+
+      width: 100%;
+      max-width: 500px;
+      margin-top: 18px;
+    }
+
+    .adjust-controls button {
+      flex: 0 0 calc((100% - 20px) / 3);
+      font-size: 34px;
+    }
+
+    .adjust-controls button:active {
+      background: #fa74b5;
+    }
+
+    /* ==========================================
+       MOBIL
+       ========================================== */
 
     @media (max-width: 600px) {
       main {
@@ -146,41 +193,12 @@
       }
 
       .controls button {
-        font-size: 18px;
-        padding: 16px 20px;
+        font-size: 16px;
       }
-    }
 
-    
-    /* PLUSS OG MINUS */
-    
-    .adjust-controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      width: 100%;
-      margin: 18px auto 0;
-    }
-    
-    .adjust-controls button {
-      width: 75px;
-      height: 60px;
-      border: none;
-      border-radius: 12px;
-      background: #343840;
-      color: white;
-      font-size: 34px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    
-    .adjust-controls button:hover {
-      filter: brightness(1.15);
-    }
-    
-    .adjust-controls button:active {
-      background: #fa74b5;
+      .adjust-controls button {
+        font-size: 34px;
+      }
     }
   </style>
 </head>
@@ -190,6 +208,7 @@
 <main>
 
   <!-- FULLSKJERM-SYMBOL -->
+
   <button id="fullscreen"
           aria-label="Fullskjerm"
           title="Fullskjerm">
@@ -209,16 +228,27 @@
     </svg>
   </button>
 
+  <!-- OVERSKRIFT OG KLOKKE -->
+
   <h1>BSI OWLS - SHOTCLOCK</h1>
 
   <div id="clock">30</div>
+
+  <!-- ØVERSTE RAD -->
 
   <div class="controls">
     <button class="start" id="start">Start</button>
     <button id="pause">Pause</button>
     <button class="reset" id="reset">Reset 30</button>
-    <button id="minus" aria-label="Trekk fra 1 sekund">−</button>
-    <button id="plus" aria-label="Legg til 1 sekund">+</button>
+  </div>
+
+  <!-- NEDERSTE RAD -->
+
+  <div class="adjust-controls">
+    <button id="minus"
+            aria-label="Trekk fra 1 sekund">−</button>
+    <button id="plus"
+            aria-label="Legg til 1 sekund">+</button>
   </div>
 
 </main>
@@ -248,7 +278,7 @@
   let finalBeepPlayed = false;
 
   // ==========================================
-  // LYD - FUNGERER PÅ IPHONE
+  // LYD - IPHONE OG PC
   // ==========================================
 
   function getAudio() {
@@ -299,7 +329,9 @@
     osc.type = "sine";
     osc.frequency.value = frequency;
 
+    // Volum: 0.8
     gain.gain.setValueAtTime(0.8, ctx.currentTime);
+
     gain.gain.exponentialRampToValueAtTime(
       0.001,
       ctx.currentTime + duration
@@ -346,14 +378,14 @@
       lastBeepSecond = seconds;
     }
 
-    // Langt pip når klokken viser 1
+    // Langt pip ved 1 sekund
     if (seconds === 1 && !finalBeepPlayed) {
       beep(1.2, FINAL_FREQUENCY);
       finalBeepPlayed = true;
       lastBeepSecond = 1;
     }
 
-    // Stopp ved 0 - ingen ekstra lyd
+    // Stopp ved 0
     if (remaining === 0) {
       running = false;
       frame = null;
@@ -414,7 +446,6 @@
     start();
   }
 
-  
   // ==========================================
   // JUSTER TID MED + OG -
   // ==========================================
@@ -428,7 +459,7 @@
       );
     }
 
-    // Legg til eller trekk fra sekunder
+    // Legg til eller trekk fra 1 sekund
     remaining = Math.max(
       0,
       remaining + seconds * 1000
@@ -439,28 +470,19 @@
       deadline = performance.now() + remaining;
     }
 
-    // Tillat nye pip når tiden justeres
+    // Oppdater pipestatus
     lastBeepSecond = Math.ceil(remaining / 1000);
     finalBeepPlayed = remaining <= 1000;
 
-    // Vis ny tid
     render();
 
-    // Stopp hvis tiden er 0
+    // Stopp ved 0
     if (remaining === 0) {
       running = false;
       cancelAnimationFrame(frame);
       frame = null;
     }
   }
-
-  document.getElementById("plus").onclick = () => {
-    adjustTime(1);
-  };
-
-  document.getElementById("minus").onclick = () => {
-    adjustTime(-1);
-  };
 
   // ==========================================
   // KNAPPER
@@ -469,6 +491,14 @@
   document.getElementById("start").onclick = start;
   document.getElementById("pause").onclick = pause;
   document.getElementById("reset").onclick = reset;
+
+  document.getElementById("plus").onclick = () => {
+    adjustTime(1);
+  };
+
+  document.getElementById("minus").onclick = () => {
+    adjustTime(-1);
+  };
 
   // ==========================================
   // FULLSKJERM
