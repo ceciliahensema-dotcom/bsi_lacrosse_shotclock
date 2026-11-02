@@ -260,8 +260,8 @@
 
   const DURATION = 30000;
   const BEEP_START = 10;
-  const BEEP_FREQUENCY = 880;
-  const FINAL_FREQUENCY = 650;
+  const BEEP_FREQUENCY = 1200;
+  const FINAL_FREQUENCY = 900;
 
   // ==========================================
   // VARIABLER
@@ -330,7 +330,7 @@
     osc.frequency.value = frequency;
 
     // Volum: 0.8
-    gain.gain.setValueAtTime(0.8, ctx.currentTime);
+    gain.gain.setValueAtTime(1.0, ctx.currentTime);
 
     gain.gain.exponentialRampToValueAtTime(
       0.001,
